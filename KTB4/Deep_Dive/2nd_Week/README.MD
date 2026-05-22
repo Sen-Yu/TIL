@@ -44,26 +44,26 @@
 ---
 1. 클라이언트에서 프록시 서버 사용  
 	중개자를 선언해서 중개자 대신 처리    
-	1.동작방식          
+	- 동작방식          
 		1. 클라이언트의 HTTP 요청 전송    
 		2. 프록시서버가 클라이언트의 HTTP 요청을 가로챔    
 		3. 목적지 서버로 HTTP 요청 전송   
 		4. 목적지 서버는 HTTP 요청을 수행하고 HTTP 응답을 프록시 서버에게 전달    
 		5. 프록시 서버는 클라이언트에게 HTTP요청을 보냄     
-	2.코드 예시            
-		https://github.com/Sen-Yu/TIL/blob/main/KTB4/Deep_Dive/2nd_Week/proxy_server.py        
-		https://github.com/Sen-Yu/TIL/blob/main/KTB4/Deep_Dive/2nd_Week/middleware_fastapi.py         
+	- 코드 예시            
+		- https://github.com/Sen-Yu/TIL/blob/main/KTB4/Deep_Dive/2nd_Week/proxy_server.py        
+		- https://github.com/Sen-Yu/TIL/blob/main/KTB4/Deep_Dive/2nd_Week/middleware_fastapi.py         
 
 2. 서버에서 Access-Control-Allow-Origin 응답 헤더 세팅
 	요청을 수락할 출처를 명시적으로 지정(검증된 사람을 목록에 저장)   
-	1.동작방식                 
+	- 동작방식                 
 		1.클라이언트는 Origin 헤더와 함께 HTTP 요청    
 		2.서버는 HTTP 요청을 수신하고 Access-Control-Allow-Origin헤더와 함께 HTTP 응답 송신            
 		3. 클라이언트는 Origin 헤더와 Access-Control-Allow-Origin 헤더를 비교하고 유효하지않으면 CORS 에러 발생시킨다.                
-	2.코드 예시              
-		https://github.com/Sen-Yu/TIL/blob/main/KTB4/Deep_Dive/2nd_Week/cors_middleware.py     
-	3.그러면 클라이언트에서 강제로 Origin을 위조한다면?               
-		브라우저에서 이를 감지하고 차단한다.            
+	- 코드 예시              
+		- https://github.com/Sen-Yu/TIL/blob/main/KTB4/Deep_Dive/2nd_Week/cors_middleware.py     
+	- 그러면 클라이언트에서 강제로 Origin을 위조한다면?               
+		- 브라우저에서 이를 감지하고 차단한다.            
 	   
 
 ## 5. 해결책 핵심 요약
