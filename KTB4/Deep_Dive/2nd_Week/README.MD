@@ -1,6 +1,7 @@
 # 이번주 주제
-Fetch API를 사용해 서버에 모델 추론 요청을 보낼 때, 브라우저 CORS 정책이 어떤 제약을 주는지 설명하고, 이를 해결하기 위한 서버/클라이언트 측 전략을 서술하시오.
 ---
+Fetch API를 사용해 서버에 모델 추론 요청을 보낼 때, 브라우저 CORS 정책이 어떤 제약을 주는지 설명하고, 이를 해결하기 위한 서버/클라이언트 측 전략을 서술하시오.
+
 
 ## 1. 주제 분석
 ----
@@ -14,36 +15,11 @@ Fetch API를 사용해 서버에 모델 추론 요청을 보낼 때, 브라우�
 		- 프로그램으로 외부에 요청을 보내고, 외부의 응답을 받아 프로그램이 이를 처리한다
 		- ex)python의 HTTP 클라이언트 프레임워크인 HTTPX ,JS는 fetch
 
-```
-import httpx
-import asyncio
-
-async def fetch_data(url):
-    # 1. 비동기 HTTP/2프로토콜로 비동기 HTTP 요청하기
-    async with httpx.AsyncClient(http2=True) as client:
-        # 2. 비동기 통신 대기 (이 동안 CPU는 멈추지 않고 다른 일을 처리함)
-        response = await client.get(url)
-        return response.status_code
-
-async def main():
-    # 3. 100개의 요청을 동시에 날리기! (비동기 병렬 처리)
-    urls = ["https://httpbin.org/get" for _ in range(10)]
-    results = await asyncio.gather(*(fetch_data(url) for url in urls))
-    print("비동기 동시 완료 결과:", results)
-
-if __name__ == "__main__":
-    asyncio.run(main())
-
-```
-
-url ="https://example.com"
-response = request.get(url)
-
-
 - CORS(교차 출처 리소스 공유 정책)
 	- 헤더의 URL에서 scheme, host , port 중 하나라도 다르다면 다른 컴퓨터로 취함
 	- 보안: 인증되지않은 출처에 대해 데이터 탈취,수정 방지
 	- 데이터 공유: 
+
 - 모델 추론 요청: 작업(질문)에 대한 결과(답)요청
 
 ## 2. 주제 요약
