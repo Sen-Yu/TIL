@@ -65,7 +65,7 @@
 	- 그러면 클라이언트에서 강제로 Origin을 위조한다면?               
 		- 브라우저에서 이를 감지하고 차단한다.            
 
-![image](./image/one.png)
+![image](.proxy_vs_cors_middleware.svg)
 
 
 
