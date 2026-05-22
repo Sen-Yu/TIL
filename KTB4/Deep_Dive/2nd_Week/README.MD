@@ -64,7 +64,10 @@
 		- https://github.com/Sen-Yu/TIL/blob/main/KTB4/Deep_Dive/2nd_Week/cors_middleware.py     
 	- 그러면 클라이언트에서 강제로 Origin을 위조한다면?               
 		- 브라우저에서 이를 감지하고 차단한다.            
-	   
+
+![image](./image/one.png)
+
+
 
 ## 5. 해결책 핵심 요약
 ---
