@@ -21,8 +21,12 @@ $$
 - 문제점
   - Internal Covariant Shift : 학습과정에서 계층 별로 입력 데이터 분포가 달라지는 현상
     Epoch:
-        입력층      ->                    히든층                    ->     출력층
-     입력 데이터 분포  -> {1층 Feature 분포 -> ... -> n층 Feature 분포} -> 출력 데이터 분포
+    
+| 층(Layer)  |    입력층    |                     히든층                                 |     출력층    | 
+|-----------|-------------|----------------------------------------------------------|--------------|
+|           | 입력 데이터 분포| 1st Layer Feature 분포 ->  ...  ->  Nth Layer Feature 분포 | 출력 데이터 분포 |
+
+     
     -1차 문제점: 히든층을 지날때 마다 **Feature 분포 변화율**은 **누적 증가**
       - 1차 해결책: 적절한 가중치(weight)의 초기화, 작은 학습률(learning rate) 세팅
         - 해결책의 문제점: 가중치 초기화는 어려운 방법이며, 학습률이 작으면 지역 극솟값(local minimum)에 빠짐
@@ -33,19 +37,24 @@ $$
 - 학습 과정에서 배치별로 평균과 분산으로 정규화하는 기법
 
 $$
-BN(X) = \gamma(\\frac{X-\mu_{batch}}{\sigma_{batch}}) + \beta
+BN(X) = \gamma(\\frac{X-\mu_{batch}}{\sigma_{batch}}) + \beta 
 $$
 $$
-\mu_{batch}} = \\frac{1}{B}\\sum{i=1}{}x_i
+\mu_{batch} = \\frac{1}{B} \\sum_{i=1} x_i
+$$
+$$
+\sigma_{batch} = \\sqrt{\\frac{1}{B} \\sum_{i=1} (x_i-\mu_{batch})^2}
 $$
 
-- 수식설명
+
+- 기호 설명
+  - $B$: 배치 크기, $x$: 입력 데이터, $\mu_{batch}$: 배치 평균, $\sigma_{batch}$: 배치 분산
   - $\gamma$, $\beta$:  Relu에서 음수결과값이 모두 0이 되지않게 방지하는 상수
 - 사용법
   - 활성화 함수 전에 사용
 
 - 문제점
-  - batch 값에 영향을 받음
+  - 배치 크기에 영향을 받음
 
 ###레이어 (Layer)
 
