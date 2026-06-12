@@ -13,9 +13,6 @@
 $$
 X_{norm} = \\frac{X-X_{min}}{X_{mamx}-X_{min}}
 $$
-
-
-
   - 
 
 
