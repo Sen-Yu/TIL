@@ -3,12 +3,11 @@
 ## 요약
 - **정규화(Normalization)**: 학습 데이터의 스케일을 조정해 과적합을 줄이고
   학습 안정성을 높이는 기법
-- **내부 공변량 변화(Internal Covariate Shift)**: 학습 중 층을 지날수록 입력 데이터의 분포가
-  달라지는 현상 → 배치 정규화로 해결
-- **배치 정규화(BN:Batch Normalization)** 는 하나의 배치 안에서 같은 feature끼리(열 방향) 평균·분산을 계산한다.
+- **내부 공변량 변화(Internal Covariate Shift)**: 학습 중 층을 지날수록 입력 데이터의 분포가 달라지는 현상 → 배치 정규화로 해결
+- **배치 정규화(BN:Batch Normalization)** 는 하나의 배치 안에서 같은 feature끼리(열 방향) 평균·분산을 계산한다.    
   → 이미지 데이터(CNN)에 적합, 배치 크기에 의존적
-- **레이어 정규화(LN:Layer Normalization)** 는 하나의 샘플 안에서 모든 feature에 걸쳐(행 방향) 평균·분산을 계산한다.
-  → 시퀀스 데이터(Transformer, RNN)에 적합, 배치 크기에 독립적
+- **레이어 정규화(LN:Layer Normalization)** 는 하나의 샘플 안에서 모든 feature에 걸쳐(행 방향) 평균·분산을 계산한다.     
+  → 시퀀스 데이터(Transformer, RNN)에 적합, 배치 크기에 독립적   
 - 두 기법은 **입력 데이터의 형태와 모델 구조**에 따라 기법을 선택한다.
 
 ## 본문
