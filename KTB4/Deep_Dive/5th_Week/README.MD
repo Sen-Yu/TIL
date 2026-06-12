@@ -33,7 +33,7 @@ $$
 - 학습 과정에서 배치별로 평균과 분산으로 정규화하는 기법
 
 $$
-BN(X) = \gamma(\\frac{X-\mu_{batch}}{\sigma_{batch}}) + \beta \\
+BN(X) = \gamma(\\frac{X-\mu_{batch}}{\sigma_{batch}}) + \beta \n
 \mu_{batch}} = \\frac{1}{B}\\sum{i=1}{}x_i
 $$
 
