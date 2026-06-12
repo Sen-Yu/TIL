@@ -11,7 +11,7 @@
 - 스케일링
 
 $$
-X_{norm} = /frac{X-X_{min}}{X_{mamx}-X_{min}}
+X_{norm} = \\frac{X-X_{min}}{X_{mamx}-X_{min}}
 $$
 
   - min-max 정규화 : 모든 데이터를 0 ~ 1 사이로 변환
