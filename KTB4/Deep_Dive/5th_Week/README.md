@@ -30,14 +30,14 @@ $$
   - $X_{max}$: 입력 행렬의 최대값
 
 ### 배치(Batch)
-- 한번에 모델이 학습하는 데이터 샘플의 수들의 한 묶음
+- 한번에 모델이 학습하는 데이터 **샘플들의 한 묶음**
 - 배치 크기(batch size): 1 batch에 속한 샘플 데이터 수
 예) 총 데이터 1000개 batch size = 100 이면 batch = 10
   -> 미니 배치(mini-batch) : 배치 1개를 지칭 -> 1번째 미니배치 
   -> 모델은 100개의 데이터 샘플 처리후에 가중치,편향 업데이트 진행  
 
 ### 내부 공변량 변화(Internal Covariant Shift)
-  - 학습과정에서 계층 별로 입력 데이터 분포가 달라지는 현상
+  - 학습과정에서 계층(Layer) 별로 입력 데이터 분포가 달라지는 현상
     
     | 층(Layer)  |    입력층    |                     히든층                                 |     출력층    | 
     |-----------|-------------|----------------------------------------------------------|--------------|
@@ -74,6 +74,24 @@ $$
   - $\mu_{batch}$: 한 배치에서 B개 데이터의 feature 평균
   - $\sigma_{batch}$: 한 배치에서 B개 데이터의 분산
   - $\gamma$, $\beta$: 강제로 평균 0, 분산 1이 된 분포를 모델이 원하는 분포로 복원할 수 있게 해주는 학습 파라미터
+
+- Backward
+
+$$
+\frac{\partial \mathcal{L}}{\partial \gamma} = \sum_{i=1}^{B} \frac{\partial \mathcal{L}}{\partial y_i} \cdot \hat{x}_i
+$$
+$$
+\frac{\partial \mathcal{L}}{\partial \beta} = \sum_{i=1}^{B} \frac{\partial \mathcal{L}}{\partial y_i}
+$$
+$$
+\frac{\partial \mathcal{L}}{\partial x_i} = \frac{\gamma}{B \cdot \sigma_{batch}} \left[ B \frac{\partial \mathcal{L}}{\partial \hat{x}_i} - \sum_{k=1}^{B} \frac{\partial \mathcal{L}}{\partial \hat{x}_k} - \hat{x}_i \sum_{k=1}^{B} \frac{\partial \mathcal{L}}{\partial \hat{x}_k} \hat{x}_k \right]
+$$
+
+- 기호 설명
+  - $\frac{\partial \mathcal{L}}{\partial \gamma}$, $\frac{\partial \mathcal{L}}{\partial \beta}$: 학습 파라미터 γ, β의 그래디언트 → 옵티마이저가 갱신
+  - $\frac{\partial \mathcal{L}}{\partial x_i}$: 입력값의 그래디언트 → 이전 층으로 전달
+  - 합산 방향: **배치(B)** → 서로 다른 샘플의 그래디언트가 결합됨
+
 - 성능확인된 모델
   - MNIST 데이터: 0~9를 표현한 숫자 손글씨 분류 모델에서 성능과 안정성 개선 입증 
 - 단점
@@ -106,6 +124,25 @@ $$
   - $D$: 레이어(특성) 차원 크기
   - $\mu_{layer}$: 한 샘플에서 D개의 feature값 평균
   - $\sigma_{layer}$: 한 샘플의 D개의 feature 분산
+
+- Backward
+
+$$
+\frac{\partial \mathcal{L}}{\partial \gamma} = \sum_{i=1}^{B} \frac{\partial \mathcal{L}}{\partial y_i} \cdot \hat{x}_i
+$$
+$$
+\frac{\partial \mathcal{L}}{\partial \beta} = \sum_{i=1}^{B} \frac{\partial \mathcal{L}}{\partial y_i}
+$$
+$$
+\frac{\partial \mathcal{L}}{\partial x_i} = \frac{\gamma}{D \cdot \sigma_{layer}} \left[ D \frac{\partial \mathcal{L}}{\partial \hat{x}_i} - \sum_{k=1}^{D} \frac{\partial \mathcal{L}}{\partial \hat{x}_k} - \hat{x}_i \sum_{k=1}^{D} \frac{\partial \mathcal{L}}{\partial \hat{x}_k} \hat{x}_k \right]
+$$
+
+- 기호 설명
+  - $\frac{\partial \mathcal{L}}{\partial \gamma}$, $\frac{\partial \mathcal{L}}{\partial \beta}$: 학습 파라미터 γ, β의 그래디언트
+  - $\frac{\partial \mathcal{L}}{\partial x_i}$: 입력값의 그래디언트 → 이전 층으로 전달
+  - 합산 방향: **특성(D)** → 같은 샘플 내에서만 그래디언트가 결합됨
+
+
 - 단점
   - CNN에서 BN보다 성능이 낮은 경향
   - 가중치 초기화, 학습률 세팅과 같은 하이퍼 파라미터 세팅에 민감
@@ -120,7 +157,6 @@ $$
 |---|---|---|
 | 정규화 축 | 배치 방향 (같은 feature, N개 샘플) | 특성 방향 (같은 샘플, D개 feature) |
 | 배치 크기 의존 | 의존 | 독립 |
-| 추론 시 처리 | 이동 평균 사용 (train/eval 모드 분리) | 실시간 계산 (모드 분리 불필요) |
 | 주요 적용 모델 | ResNet, EfficientNet 등 CNN 계열 | GPT, BERT, LLaMA 등 Transformer 계열 |
 
 따라서 **입력 데이터의 형태와 모델 구조**에 따라 기법을 선택해야 한다.
