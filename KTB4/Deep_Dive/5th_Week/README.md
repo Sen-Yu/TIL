@@ -154,7 +154,7 @@ $$
 
 | | 배치 정규화 (BN) | 레이어 정규화 (LN) |
 |---|---|---|
-| 정규화 축 | 배치 방향 (같은 feature, N개 샘플) | 특성 방향 (같은 샘플, D개 feature) |
+| 정규화 축 | 배치 방향 (같은 feature, B개 샘플) | 특성 방향 (같은 샘플, D개 feature) |
 | 배치 크기 의존 | 의존 | 독립 |
 | 주요 적용 모델 | ResNet, EfficientNet 등 CNN 계열 | GPT, BERT, LLaMA 등 Transformer 계열 |
 
