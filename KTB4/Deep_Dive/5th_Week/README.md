@@ -56,7 +56,7 @@ $$
 - Forward
 
 $$
-BN(X) = \gamma(\\frac{X-\mu_{batch}}{\sigma_{batch}}) + \beta 
+BN(X) = \gamma\left(\\frac{X-\mu_{batch}}{\sigma_{batch}}\right) + \beta 
 $$
 $$
 \mu_{batch} = \\frac{1}{B} \\sum_{i=1} x_i
