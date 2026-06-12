@@ -54,7 +54,9 @@ $$
 
 
 - 기호 설명
-  - $B$: 배치 크기, $x$: 입력 데이터, $\mu_{batch}$: 배치 평균, $\sigma_{batch}$: 배치 분산
+  - $B$: 배치 크기
+  - $\mu_{batch}$: 한 배치에서 B개 데이터의 featuer 평균
+  - \sigma_{batch}$: 한 배치에서 B개 데이터의 분산
   - $\gamma$, $\beta$: BN(X)의 음수 결과값이 활성화 함수(Relu)에서 모두 0이 되지않게 방지하는 변수(학습되는 변수)
 - Backforward
 - 성능확인된 모델
@@ -82,7 +84,10 @@ $$
 $$
 \sigma_{layer} = \sqrt{\frac{1}{D} \sum_{i=1}^{D} (x_i-\mu_{layer})^2}
 $$
-
+- 기호 설명
+  - $D$: 레이어(특성) 차원 크기
+  - $\mu_{layer}$: 한 샘플에서 D개의 featuer값 평균
+  - $\sigma_{layer}$: 한 샘플의 D개의 featuer 분산
 
 레이어 정규화도 동일한 형식으로 만들어줘
 - 예)
