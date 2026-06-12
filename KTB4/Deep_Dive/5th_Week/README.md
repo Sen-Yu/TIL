@@ -72,15 +72,17 @@ $$
 - 정규화 단위: 하나의 **샘플 데이터 단위에서의 feature** 값들의 평균과 분산을 계산해서 정규화
 - 배치사이즈에 영향 안받음
 - Foward
+
 $$
-BN(X) = \gamma(\\frac{X-\mu_{batch}}{\sigma_{batch}}) + \beta 
-$$
-$$
-\mu_{batch} = \\frac{1}{B} \\sum_{i=1} x_i
+LN(X) = \gamma\left(\frac{X-\mu_{layer}}{\sigma_{layer}}\right) + \beta
 $$
 $$
-\sigma_{batch} = \\sqrt{\\frac{1}{B} \\sum_{i=1} (x_i-\mu_{batch})^2}
+\mu_{layer} = \frac{1}{D} \sum_{i=1}^{D} x_i
 $$
+$$
+\sigma_{layer} = \sqrt{\frac{1}{D} \sum_{i=1}^{D} (x_i-\mu_{layer})^2}
+$$
+
 
 레이어 정규화도 동일한 형식으로 만들어줘
 - 예)
