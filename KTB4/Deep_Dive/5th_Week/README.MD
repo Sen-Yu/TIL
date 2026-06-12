@@ -27,11 +27,11 @@ $$
 - 학습 과정에서 배치별로 평균과 분산으로 정규화하는 기법
 
 $$
-BN_{X} = \gamma\\frac{X-\mu_{batch}}{\sigma_{batch}} + \beta
+BN(X) = \gamma(\\frac{X-\mu_{batch}}{\sigma_{batch}}) + \beta
 $$
 
 - 수식설명
-  - Relu 대비: r과 b
+  - Relu 대비: $\gamma$과 $\beta$
 - 사용법
   - 활성화 함수 전에 사용
 
