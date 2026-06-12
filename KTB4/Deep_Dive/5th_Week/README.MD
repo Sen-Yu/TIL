@@ -15,9 +15,27 @@ $$
 X_{norm} = \\frac{X-X_{min}}{X_{mamx}-X_{min}}
 $$
 
+### 배치(Batch)
+- 모델 학습시 Epoch 1회에 한번에 학습시킬 샘플 데이터량 
+- 학습과 
+- 문제점
+  - Internal Covariant Shift : 학습과정에서 계층 별로 입력 데이터 분포가 달라지는 현상
+  -> 배치 단위별로 데이터 분포에 차이가 발생
+  -> 해결책: 배치 정규화
 
-### 배치 정규화
+### 배치 정규화(Batch Normalization)
+- 학습 과정에서 배치별로 평균과 분산으로 정규화하는 기법
 
+$$
+BN_{X} = \gamma\\frac{X-\mu_{batch}}{\sigma_{batch}} + \beta
+$$
+
+- 수식설명
+  - Relu 대비: r과 b
+- 사용법
+  - 활성화 함수 전에 사용
+
+###레이어 (Layer)
 
 ### 레이어 정규화
 
