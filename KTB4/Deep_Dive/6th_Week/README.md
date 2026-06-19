@@ -146,8 +146,9 @@ $$
   - Context Precision: 100%
   - Context Recall: 100%
   - 답변의 품질: 검색은 "세일 상품 환불 불가" Child 2로 정밀하게 매칭되지만, 전달되는 Context는 Parent 전체라서 일반 환불 기간, 배송 기간, 교환 절차까지 모두 포함됨. 가상 질문1과 마찬가지로 검색 결과보다 더 넓은 정보를 담은 Context로 답변 생성
-    
-<img width="1274" height="712" alt="image" src="https://github.com/user-attachments/assets/79c734b1-0cf3-4af4-aeeb-377ac67b33b0" />
+
+
+<img width="1440" height="1524" alt="image" src="https://github.com/user-attachments/assets/980f1d33-074b-440a-b8f3-cf94bb26cb8e" />
 
 
 
@@ -179,14 +180,16 @@ $$
 
 
 ## 결론
-### Retrieval 정확도에 미치는 영향
-청크가 문맥과 무관하게 잘리면(Fixed-size), 임베딩 벡터 자체가 불완전하거나 여러 주제가 뒤섞인 형태로 만들어집니다. 이 벡터는 질문 벡터와의 유사도 계산이 부정확해져서, 관련 있는 문서가 검색되지 않거나(Recall 하락) 무관한 문서가 섞여 검색됩니다(Precision 하락).
+### Chunking Strategy가 Retrieval 정확도에 미치는 영향
+청크가 문맥과 무관하게 잘리면(Fixed-size), 임베딩 벡터 자체가 불완전하거나 여러 주제가 뒤섞인 형태로 만들어집니다. 해당 벡터는 질문 벡터와의 유사도 계산이 부정확해져서, 관련 있는 문서가 검색되지 않거나(Recall 하락) 무관한 문서가 섞여 검색됩니다(Precision 하락).
 반대로 청크가 의미 단위로 잘리면(Semantic, Delimiter, Parent-Child), 벡터가 하나의 명확한 의미를 대표하게 되어 유사도 계산이 정확해지고 검색 품질이 올라갑니다.
 
-### Context 품질에 미치는 영향
+### Chunking Strategy가 Context 품질에 미치는 영향
 검색이 잘 됐어도, 그 청크 자체가 불완전한 문장이거나 필요한 정보 일부가 빠져 있으면 LLM은 불완전한 재료로 답을 만들어야 합니다. 이게 곧 환각이나 추측성 답변으로 이어집니다.
 Parent-Child처럼 검색은 정밀하게 하되 전달되는 Context는 더 넓게 가져가는 구조는, "찾는 것은 정확하게, 주는 것은 충분하게"라는 두 요구를 동시에 만족시킵니다.
 
+### 파라미터
+청크 크기는 검색 정밀도와 정보 완결성 사이의 트레이드오프를 직접적으로 결정,중첩은 청크 경계에서 발생하는 문맥 단절을 완화,의미 단위로 분할하느냐 기계적으로 분할하느냐는 청크의 "주제 일관성"을 결정합니다.
 
 
 
