@@ -1,1 +1,49 @@
+# LLM Optimization
+- 학습이 끝난 LLM을 제한된 리소스에서 사용토록 개선하는 과정입니다.
+- 리소스: (모델 크기, 추론속도, 메모리 사용량)
+- 기법: 압축, 경량화, 재학습 
 
+## 데이터타입
+### FP32,FP16
+- 실수를 비트에따라 부호,지수,가수로 나누어 표현한 부동소수점 데이터타입
+
+### INT8,INT4
+- 정수를 비트에따라 표현한 정수 데이터타입
+### Mixed Precision Training
+- 학습 중 연산은 16비트, 가중치 누적과 업데이트는 32비토로 섞어서 학습하는 방식
+
+## Quantization 양자화 기법
+- 높은 비트를 가진 부동소수점 데이터타입을 낮은 비트를 가진 정수 데이터 타입 표현으로 변환하는 경량화 기법
+
+### Affine Quantization
+- Scale factor(축소 비율)와 Zero-point(영점 이동)을 사용해서 양자화하는 방식
+- 역양자화: 정수값을 다시 부동소수점 근사값으로 복원하는 과정
+
+### Weight Quantization
+- 가중치 가중화
+- 종류
+  - Per-tensor
+  - Per-group
+  - Per- channel
+### Activation Quantization
+- 대표 데이터 미리 넣어 활성화 분포를측정
+- 방식
+  - 대표데이터를 미리 넣고
+- 추론시점에 입력별로
+
+### KV Cache Quantization
+- 매번 갱신되는 Query를 제외하고 재사용되는 Key, Value를 양자화해서 GPU 연산 메모리를 감소시키는 방법
+
+### Post-Training Quantization (PTQ)
+- 학습이 끝난 모델에 대표 데이터를 넣어 값 분포를 확인해서 양자화하는 기법
+
+### Static Quantization, Dynamic Quantization
+- static : **추론전**에 대표데이터로 미리 양자화하는 방식
+	- 대표데이터: 칼리브레이션 데이터
+- dynamic: **추론시점**에 입력데이터 분포를 보고 즉석으로 양자화하는 방식
+
+### 캘리브레이션
+- 양자화 기준을 정하기 위해서 대표 데이터를 모델에 한번 통과시키는 과정
+
+### Quantization-Aware Training (QAT): 좀더 자세히 확인하기
+-Fake Quantization(가짜 양자화) 노드를 삽입
