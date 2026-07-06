@@ -12,12 +12,36 @@
 ### Mixed Precision Training
 - 학습 중 연산은 16비트, 가중치 누적과 업데이트는 32비토로 섞어서 학습하는 방식
 
-## Quantization 양자화 기법
+## Quantization(양자화)
 - 높은 비트를 가진 부동소수점 데이터타입을 낮은 비트를 가진 정수 데이터 타입 표현으로 변환하는 경량화 기법
+- 단계
+	-> 1. 목적 확인: 메모리 절감, 추론 비용 절감, 추론 속도 개선,etc 
+	-> 2. 변환 대상 선택: weigh, activation,KV Cache,etc
+	-> 3. 정밀도 결정: INT8, INT4, W8A8, W4A16
+	-> 4. 매핑 방식 선택: 대칭(Symmetric), 비대칭(Affine)
+	-> 5. 적용 시점 결정: PTQ, QAT
+	-> 6. 도구 적용: bitsandbytes, GPTQ, AWQ, llama.cpp
+	-> 7. 성능 평가: 양자화 전후 정확도, 응답 품질, 메모리 사용량, 추론 속도 비교
+	-> 8. 배포 또는 재조정: 손실 허용 범위에 따라 결정
 
 ### Affine Quantization
 - Scale factor(축소 비율)와 Zero-point(영점 이동)을 사용해서 양자화하는 방식
-- 역양자화: 정수값을 다시 부동소수점 근사값으로 복원하는 과정
+- Affine: 부동소수점 범위를 정수 범위에 대응(선형변환에 평행 이동이 더해진 변환)
+- Scale factor: 부동소수점 값의 간격을 정수 한칸 비율에 맞춤(축소비율)
+- Zero-point: 부동소수점 0이 정수 범위의 어느 값에 대응되는지(영점이동) 
+
+$$
+y = ax + b
+$$
+
+$$
+q = clamp(round(x / scale) + zero_point, q_min, q_max)
+$$
+- 역양자화
+	
+	$$
+	x_approx = (q - zero_point) * scale
+	$$
 
 ### Weight Quantization
 - 가중치 가중화
@@ -25,6 +49,7 @@
   - Per-tensor
   - Per-group
   - Per-channel
+
 ### Activation Quantization
 - 대표 데이터 미리 넣어 활성화 분포를측정
 - 방식
