@@ -1,1 +1,45 @@
 
+
+## OPtimization
+
+### GGUF
+- 모델 저장, 읽기 파일 형식(가중치 + 모델 실행 정보파일)
+- GGML: C/C++ 기반 머신러닝 라이브러리, llama.cpp 기반이된 프로젝트
+- 파일 구성
+  - Hugging Face
+    - .safetensors: 가중치
+    - config.json: 모델 구조
+    - tokenizer.json: 토크나이저 정보
+  - GGUF
+    - .gguf: 가중치 + 모델 구조, 토크나이저 정보
+- 파일 구조
+  - 헤더
+  - 메타데이터: 모델 구조, 실행 설정 정보
+  - 텐서 정보: 가중치 데이터 검색 및 해석을 위한 정보
+  - 텐서 데이터: 모델 계산에 사용되는 실제 데이터
+- K-quant
+  - GGUF 파일 안에 저장되는 텐서 양자화 타입(로컬 텐서 저장 방식)
+
+### Llama.cpp
+- GGUF 실행케 해주는 C/C++기반 경량 추론 엔진(모델 학습X)
+- 사용이유: 다양한 GPU 환경에서 LLM 저비용 테스트 및 검증 배포가 가능
+
+
+## PEFT 기법
+
+### PEFT (Parameter-Efficient Fine-Tuning)
+- 부분적 파인튜닝 기법 총칭(<-> Full Fine-Tuning)
+- 사용이유: 제한된 GPU환경에서 모델 관리 가능
+- 분류
+  - 어댑터, 가중치 수정: LoRA 
+  - 양자화 결합: QLoRA
+  - 병합,결합: Adapter Merge, Model Merging
+  - 프롬프트 기반: Prompt Tuning, Prefix Tuning
+
+### LoRA(Low-Rank Adaptaion)
+- 사전학습 모델의 원본 가중치 고정, 작업 적응에 필요한 가중치 변화량을 두개의 저랭크 행렬곱으로 근사해, 소수의 파라미터만 학습하는 PEFT기법
+  -> 작은 일부 어댑터만 학습
+- 사용이유: 기반 모델은 유지한채로, 고객사,도메인,작업별로 서로 다른 LoRA 어댑터 만들어서 관리가 가능
+- 초기화: 원본 모델 위에 작은 어댑터를 추가
+- 논문 원서 분석
+  - 사전훈련된 모델은 다른 작업에서 작은 LoRA모듈로 사용, 
