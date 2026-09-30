@@ -1,0 +1,204 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="100%" height="100%" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Pretendard', sans-serif;">
+  <defs>
+    <!-- 화살표 마커 정의 -->
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#D97706"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#16A34A"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#DC2626"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#9333EA"/>
+    </marker>
+    
+    <!-- 그림자 필터 -->
+    <filter id="card-shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- 메인 헤더 타이틀 -->
+  <text x="550" y="45" text-anchor="middle" font-size="24" font-weight="700" fill="#0F172A">TCP 3-Way &amp; 4-Way Handshake 프로세스 비교도해</text>
+  <text x="550" y="70" text-anchor="middle" font-size="13" fill="#64748B">클라이언트와 서버 간의 연결 수립(Connection Establishment) 및 안전한 연결 종료(Connection Termination)</text>
+
+  <!-- 중앙 구분 점선 -->
+  <line x1="550" y1="95" x2="550" y2="765" stroke="#E2E8F0" stroke-width="2" stroke-dasharray="6,6"/>
+
+  <!-- ========================================== -->
+  <!-- 1. 좌측: TCP 3-Way Handshake (연결 수립)    -->
+  <!-- ========================================== -->
+  <rect x="30" y="95" width="490" height="670" rx="14" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5" filter="url(#card-shadow)"/>
+  
+  <!-- 좌측 카드 헤더 -->
+  <rect x="30" y="95" width="490" height="50" rx="14" fill="#EFF6FF"/>
+  <path d="M 30 131 L 30 145 L 520 145 L 520 131 Z" fill="#EFF6FF"/>
+  <text x="275" y="126" text-anchor="middle" font-size="16" font-weight="700" fill="#1E40AF">1. TCP 3-Way Handshake (연결 수립)</text>
+
+  <!-- 좌측 엔티티 헤더: Client vs Server -->
+  <!-- Client 상단 박스 -->
+  <rect x="75" y="165" width="110" height="36" rx="8" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1.5"/>
+  <text x="130" y="188" text-anchor="middle" font-size="14" font-weight="700" fill="#1D4ED8">Client</text>
+  
+  <!-- Server 상단 박스 -->
+  <rect x="365" y="165" width="110" height="36" rx="8" fill="#DCFCE7" stroke="#22C55E" stroke-width="1.5"/>
+  <text x="420" y="188" text-anchor="middle" font-size="14" font-weight="700" fill="#15803D">Server</text>
+
+  <!-- 타임라인 수직선 -->
+  <line x1="130" y1="201" x2="130" y2="720" stroke="#94A3B8" stroke-width="2.5"/>
+  <line x1="420" y1="201" x2="420" y2="720" stroke="#94A3B8" stroke-width="2.5"/>
+
+  <!-- 초기 상태 뱃지 -->
+  <rect x="80" y="215" width="100" height="24" rx="12" fill="#E2E8F0"/>
+  <text x="130" y="231" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">CLOSED</text>
+
+  <rect x="370" y="215" width="100" height="24" rx="12" fill="#FEF08A" stroke="#EAB308" stroke-width="1"/>
+  <text x="420" y="231" text-anchor="middle" font-size="11" font-weight="700" fill="#A16207">LISTEN</text>
+
+  <!-- [3-Way Step 1: SYN] -->
+  <line x1="130" y1="270" x2="412" y2="330" stroke="#2563EB" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <!-- 패킷 설명 라벨 -->
+  <rect x="180" y="265" width="190" height="42" rx="6" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1.5"/>
+  <text x="275" y="283" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">① [SYN] seq = x</text>
+  <text x="275" y="299" text-anchor="middle" font-size="10" fill="#64748B">"내 시작번호는 x야, 통신하자"</text>
+
+  <!-- 클라이언트 상태 전이: SYN_SENT -->
+  <rect x="75" y="280" width="110" height="24" rx="12" fill="#DBEAFE" stroke="#3B82F6" stroke-width="1"/>
+  <text x="130" y="296" text-anchor="middle" font-size="11" font-weight="700" fill="#1D4ED8">SYN_SENT</text>
+
+  <!-- 서버 상태 전이: SYN_RCVD -->
+  <rect x="365" y="340" width="110" height="24" rx="12" fill="#FED7AA" stroke="#F97316" stroke-width="1"/>
+  <text x="420" y="356" text-anchor="middle" font-size="11" font-weight="700" fill="#C2410C">SYN_RCVD</text>
+
+  <!-- [3-Way Step 2: SYN+ACK] -->
+  <line x1="420" y1="395" x2="138" y2="455" stroke="#D97706" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+  <!-- 패킷 설명 라벨 -->
+  <rect x="160" y="395" width="230" height="42" rx="6" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="275" y="413" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309">② [SYN+ACK] seq = y, ack = x+1</text>
+  <text x="275" y="429" text-anchor="middle" font-size="10" fill="#64748B">"x 확인! 내 시작번호는 y야"</text>
+
+  <!-- 클라이언트 상태 전이: ESTABLISHED -->
+  <rect x="65" y="465" width="130" height="26" rx="13" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5"/>
+  <text x="130" y="482" text-anchor="middle" font-size="11" font-weight="700" fill="#15803D">ESTABLISHED</text>
+
+  <!-- [3-Way Step 3: ACK] -->
+  <line x1="130" y1="520" x2="412" y2="580" stroke="#16A34A" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <!-- 패킷 설명 라벨 -->
+  <rect x="180" y="525" width="190" height="42" rx="6" fill="#FFFFFF" stroke="#BBF7D0" stroke-width="1.5"/>
+  <text x="275" y="543" text-anchor="middle" font-size="12" font-weight="700" fill="#15803D">③ [ACK] ack = y+1</text>
+  <text x="275" y="559" text-anchor="middle" font-size="10" fill="#64748B">"y 확인! 이제 데이터 주고받자"</text>
+
+  <!-- 서버 상태 전이: ESTABLISHED -->
+  <rect x="355" y="590" width="130" height="26" rx="13" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.5"/>
+  <text x="420" y="607" text-anchor="middle" font-size="11" font-weight="700" fill="#15803D">ESTABLISHED</text>
+
+  <!-- 3-Way 완료 안내 박스 -->
+  <rect x="55" y="660" width="440" height="50" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+  <text x="275" y="682" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">🎉 양방향 연결 수립 완료 (전이중 통신 가능)</text>
+  <text x="275" y="700" text-anchor="middle" font-size="11" fill="#15803D">클라이언트와 서버 양측의 ISN 동기화 및 송수신 버퍼 준비 완료</text>
+
+
+  <!-- ========================================== -->
+  <!-- 2. 우측: TCP 4-Way Handshake (연결 종료)    -->
+  <!-- ========================================== -->
+  <rect x="580" y="95" width="490" height="670" rx="14" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5" filter="url(#card-shadow)"/>
+  
+  <!-- 우측 카드 헤더 -->
+  <rect x="580" y="95" width="490" height="50" rx="14" fill="#FEF2F2"/>
+  <path d="M 580 131 L 580 145 L 1070 145 L 1070 131 Z" fill="#FEF2F2"/>
+  <text x="825" y="126" text-anchor="middle" font-size="16" font-weight="700" fill="#991B1B">2. TCP 4-Way Handshake (연결 종료)</text>
+
+  <!-- 우측 엔티티 헤더: Client (Active Close) vs Server (Passive Close) -->
+  <!-- Client 상단 박스 -->
+  <rect x="615" y="165" width="130" height="36" rx="8" fill="#FEE2E2" stroke="#EF4444" stroke-width="1.5"/>
+  <text x="680" y="181" text-anchor="middle" font-size="12" font-weight="700" fill="#B91C1C">Client</text>
+  <text x="680" y="195" text-anchor="middle" font-size="10" fill="#DC2626">(Active Close)</text>
+  
+  <!-- Server 상단 박스 -->
+  <rect x="905" y="165" width="130" height="36" rx="8" fill="#F1F5F9" stroke="#64748B" stroke-width="1.5"/>
+  <text x="970" y="181" text-anchor="middle" font-size="12" font-weight="700" fill="#334155">Server</text>
+  <text x="970" y="195" text-anchor="middle" font-size="10" fill="#64748B">(Passive Close)</text>
+
+  <!-- 타임라인 수직선 -->
+  <line x1="680" y1="201" x2="680" y2="720" stroke="#94A3B8" stroke-width="2.5"/>
+  <line x1="970" y1="201" x2="970" y2="720" stroke="#94A3B8" stroke-width="2.5"/>
+
+  <!-- 초기 상태: 둘 다 ESTABLISHED -->
+  <rect x="620" y="215" width="120" height="24" rx="12" fill="#DCFCE7" stroke="#16A34A" stroke-width="1"/>
+  <text x="680" y="231" text-anchor="middle" font-size="11" font-weight="700" fill="#15803D">ESTABLISHED</text>
+
+  <rect x="910" y="215" width="120" height="24" rx="12" fill="#DCFCE7" stroke="#16A34A" stroke-width="1"/>
+  <text x="970" y="231" text-anchor="middle" font-size="11" font-weight="700" fill="#15803D">ESTABLISHED</text>
+
+  <!-- [4-Way Step 1: FIN] -->
+  <line x1="680" y1="260" x2="962" y2="310" stroke="#DC2626" stroke-width="2.5" marker-end="url(#arrow-red)"/>
+  <!-- 패킷 설명 라벨 -->
+  <rect x="720" y="255" width="210" height="42" rx="6" fill="#FFFFFF" stroke="#FECACA" stroke-width="1.5"/>
+  <text x="825" y="273" text-anchor="middle" font-size="12" font-weight="700" fill="#DC2626">① [FIN] seq = u</text>
+  <text x="825" y="289" text-anchor="middle" font-size="10" fill="#64748B">"난 보낼 거 다 보냈어, 연결 끊자"</text>
+
+  <!-- 클라이언트 상태 전이: FIN_WAIT_1 -->
+  <rect x="620" y="270" width="120" height="24" rx="12" fill="#FEE2E2" stroke="#EF4444" stroke-width="1"/>
+  <text x="680" y="286" text-anchor="middle" font-size="11" font-weight="700" fill="#B91C1C">FIN_WAIT_1</text>
+
+  <!-- 서버 상태 전이: CLOSE_WAIT -->
+  <rect x="910" y="315" width="120" height="24" rx="12" fill="#FEF08A" stroke="#EAB308" stroke-width="1"/>
+  <text x="970" y="331" text-anchor="middle" font-size="11" font-weight="700" fill="#A16207">CLOSE_WAIT</text>
+
+  <!-- [4-Way Step 2: ACK] -->
+  <line x1="970" y1="355" x2="688" y2="405" stroke="#D97706" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+  <!-- 패킷 설명 라벨 -->
+  <rect x="715" y="350" width="220" height="42" rx="6" fill="#FFFFFF" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="825" y="368" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309">② [ACK] ack = u+1</text>
+  <text x="825" y="384" text-anchor="middle" font-size="10" fill="#64748B">"FIN 확인! 난 아직 보낼 게 남았어"</text>
+
+  <!-- 클라이언트 상태 전이: FIN_WAIT_2 -->
+  <rect x="620" y="415" width="120" height="24" rx="12" fill="#FEF3C7" stroke="#F59E0B" stroke-width="1"/>
+  <text x="680" y="431" text-anchor="middle" font-size="11" font-weight="700" fill="#B45309">FIN_WAIT_2</text>
+
+  <!-- 서버 잔여 데이터 전송 구간 (Half-Close) -->
+  <rect x="880" y="415" width="180" height="34" rx="6" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4,4"/>
+  <text x="970" y="430" text-anchor="middle" font-size="10" font-weight="600" fill="#475569">남은 데이터 마저 전송 중</text>
+  <text x="970" y="443" text-anchor="middle" font-size="9" fill="#94A3B8">(Half-Close 상태)</text>
+
+  <!-- [4-Way Step 3: FIN] -->
+  <line x1="970" y1="475" x2="688" y2="525" stroke="#9333EA" stroke-width="2.5" marker-end="url(#arrow-purple)"/>
+  <!-- 패킷 설명 라벨 -->
+  <rect x="705" y="470" width="240" height="42" rx="6" fill="#FFFFFF" stroke="#E9D5FF" stroke-width="1.5"/>
+  <text x="825" y="488" text-anchor="middle" font-size="12" font-weight="700" fill="#7E22CE">③ [FIN] seq = v, ack = u+1</text>
+  <text x="825" y="504" text-anchor="middle" font-size="10" fill="#64748B">"나도 데이터 다 보냈어! 진짜 끊자"</text>
+
+  <!-- 서버 상태 전이: LAST_ACK -->
+  <rect x="910" y="530" width="120" height="24" rx="12" fill="#FCE7F3" stroke="#EC4899" stroke-width="1"/>
+  <text x="970" y="546" text-anchor="middle" font-size="11" font-weight="700" fill="#BE185D">LAST_ACK</text>
+
+  <!-- [4-Way Step 4: ACK] -->
+  <line x1="680" y1="565" x2="962" y2="615" stroke="#16A34A" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <!-- 패킷 설명 라벨 -->
+  <rect x="725" y="560" width="200" height="42" rx="6" fill="#FFFFFF" stroke="#BBF7D0" stroke-width="1.5"/>
+  <text x="825" y="578" text-anchor="middle" font-size="12" font-weight="700" fill="#15803D">④ [ACK] ack = v+1</text>
+  <text x="825" y="594" text-anchor="middle" font-size="10" fill="#64748B">"마지막 FIN 확인했어, 안녕!"</text>
+
+  <!-- 서버 즉시 CLOSED -->
+  <rect x="910" y="625" width="120" height="24" rx="12" fill="#E2E8F0"/>
+  <text x="970" y="641" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">CLOSED</text>
+
+  <!-- 클라이언트 상태 전이: TIME_WAIT 강조 박스 -->
+  <rect x="605" y="615" width="150" height="50" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+  <text x="680" y="635" text-anchor="middle" font-size="12" font-weight="800" fill="#B45309">TIME_WAIT</text>
+  <text x="680" y="652" text-anchor="middle" font-size="10" font-weight="600" fill="#D97706">(통상 1~2분 / 2MSL 대기)</text>
+
+  <!-- 클라이언트 최종 CLOSED -->
+  <rect x="620" y="685" width="120" height="24" rx="12" fill="#E2E8F0"/>
+  <text x="680" y="701" text-anchor="middle" font-size="11" font-weight="600" fill="#475569">CLOSED</text>
+
+  <!-- TIME_WAIT 핵심 이유 2가지 풋터 -->
+  <rect x="605" y="715" width="440" height="36" rx="6" fill="#FFFBEB" stroke="#FDE68A" stroke-width="1"/>
+  <text x="825" y="729" text-anchor="middle" font-size="10" font-weight="700" fill="#92400E">⭐ TIME_WAIT 필수 이유: ① 마지막 ACK 유실 시 서버 FIN 재전송 수신 보장</text>
+  <text x="825" y="743" text-anchor="middle" font-size="10" fill="#B45309">② 네트워크에 지연되어 떠돌던 패킷(Stray Packet)이 새 연결에 유입되는 것 방지</text>
+</svg>

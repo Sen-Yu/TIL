@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 820" width="100%" height="100%" style="background-color: #FFFFFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Pretendard', sans-serif;">
+  <defs>
+    <!-- 화살표 마커 -->
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#16A34A"/>
+    </marker>
+    <marker id="arrow-orange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#D97706"/>
+    </marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#DC2626"/>
+    </marker>
+    <marker id="arrow-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#9333EA"/>
+    </marker>
+
+    <!-- 카드 그림자 -->
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.07"/>
+    </filter>
+  </defs>
+
+  <!-- 메인 헤더 타이틀 -->
+  <text x="550" y="42" text-anchor="middle" font-size="24" font-weight="800" fill="#0F172A">DNS 레코드 갱신 및 전파(Propagation) 메커니즘</text>
+  <text x="550" y="66" text-anchor="middle" font-size="13" fill="#64748B">Authoritative DNS 수정부터 전 세계 리졸버 캐시 만료(TTL) 및 신규 서버 접속까지의 라이프사이클</text>
+
+  <!-- ============================================================ -->
+  <!-- STEP 1: 개발자/관리자의 권한 있는 네임서버(Authoritative DNS) 수정 -->
+  <!-- ============================================================ -->
+  <g transform="translate(40, 95)" filter="url(#shadow)">
+    <rect width="320" height="230" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+    <rect width="320" height="38" rx="12" fill="#EFF6FF"/>
+    <path d="M 0 26 L 0 38 L 320 38 L 320 26 Z" fill="#EFF6FF"/>
+    <text x="160" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#1E40AF">STEP 1. 원본 레코드 수정</text>
+
+    <!-- 관리자 아이콘 & 작업 박스 -->
+    <rect x="20" y="55" width="280" height="60" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1"/>
+    <text x="35" y="77" font-size="12" font-weight="700" fill="#1D4ED8">👨‍💻 인프라 관리자 (콘솔 / CLI)</text>
+    <text x="35" y="98" font-size="11" fill="#475569">AWS Route 53 / 가비아에서 A 레코드 변경</text>
+
+    <!-- 변경 전후 IP 비교 카드 -->
+    <rect x="20" y="125" width="280" height="90" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+    <text x="35" y="148" font-size="12" font-weight="700" fill="#0F172A">🌐 Authoritative Name Server</text>
+    <text x="35" y="172" font-size="11" fill="#DC2626">❌ 이전 IP: 198.51.100.1 (구 서버)</text>
+    <text x="35" y="195" font-size="11" font-weight="700" fill="#16A34A">✅ 신규 IP: 203.0.113.5 (신규 서버)</text>
+    <text x="35" y="208" font-size="10" fill="#64748B">(SOA Serial 번호 증가 $\to$ 보조 서버 동기화)</text>
+  </g>
+
+  <!-- 화살표: Step 1 -> Step 2 -->
+  <path d="M 360 210 L 415 210" stroke="#2563EB" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
+  <text x="388" y="200" text-anchor="middle" font-size="11" font-weight="700" fill="#2563EB">즉시 갱신</text>
+
+  <!-- ============================================================ -->
+  <!-- STEP 2: 전 세계 Recursive Resolver 캐시 보관 및 TTL 카운트다운 -->
+  <!-- ============================================================ -->
+  <g transform="translate(425, 95)" filter="url(#shadow)">
+    <rect width="320" height="230" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+    <rect width="320" height="38" rx="12" fill="#FEF3C7"/>
+    <path d="M 0 26 L 0 38 L 320 38 L 320 26 Z" fill="#FEF3C7"/>
+    <text x="160" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#92400E">STEP 2. 기존 TTL 캐시 유지 구간</text>
+
+    <rect x="20" y="55" width="280" height="155" rx="8" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="35" y="78" font-size="12" font-weight="700" fill="#B45309">🏢 ISP 및 공개 DNS 리졸버</text>
+    <text x="35" y="96" font-size="11" fill="#475569">(SKT, KT, LGU+, Google 8.8.8.8 등)</text>
+    
+    <!-- 캐시 상태 -->
+    <rect x="35" y="110" width="250" height="42" rx="6" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1"/>
+    <text x="45" y="127" font-size="11" font-weight="600" fill="#92400E">캐시 보관: 198.51.100.1 (구 IP 유지)</text>
+    <text x="45" y="143" font-size="10" fill="#D97706">⏳ 남은 TTL: 3,599s $\to$ 1,200s $\to$ 0s</text>
+
+    <text x="35" y="174" font-size="10.5" fill="#DC2626">⚠️ 이 시간 동안 사용자는 여전히</text>
+    <text x="35" y="190" font-size="10.5" fill="#DC2626">구 서버(198.51.100.1)로 접속됨!</text>
+  </g>
+
+  <!-- 화살표: Step 2 -> Step 3 -->
+  <path d="M 745 210 L 800 210" stroke="#D97706" stroke-width="2.5" marker-end="url(#arrow-orange)"/>
+  <text x="772" y="200" text-anchor="middle" font-size="11" font-weight="700" fill="#D97706">TTL 만료</text>
+
+  <!-- ============================================================ -->
+  <!-- STEP 3: TTL 만료 $\to$ 캐시 소멸 (Cache Eviction)          -->
+  <!-- ============================================================ -->
+  <g transform="translate(810, 95)" filter="url(#shadow)">
+    <rect width="250" height="230" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+    <rect width="250" height="38" rx="12" fill="#FEE2E2"/>
+    <path d="M 0 26 L 0 38 L 250 38 L 250 26 Z" fill="#FEE2E2"/>
+    <text x="125" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#991B1B">STEP 3. 캐시 만료</text>
+
+    <rect x="20" y="55" width="210" height="155" rx="8" fill="#FFFFFF" stroke="#FECACA" stroke-width="1"/>
+    <text x="125" y="90" text-anchor="middle" font-size="28">⏰</text>
+    <text x="125" y="125" text-anchor="middle" font-size="13" font-weight="800" fill="#DC2626">TTL = 0 초 도달!</text>
+    
+    <rect x="35" y="145" width="180" height="50" rx="6" fill="#FEF2F2" stroke="#F87171" stroke-width="1"/>
+    <text x="125" y="166" text-anchor="middle" font-size="11" font-weight="700" fill="#B91C1C">구 IP 캐시 즉시 삭제</text>
+    <text x="125" y="183" text-anchor="middle" font-size="10" fill="#EF4444">(Cache Eviction 발생)</text>
+  </g>
+
+  <!-- 중앙 꺾은선 화살표: Step 3에서 Authoritative DNS로 재질의(Re-Query) -->
+  <path d="M 935 325 L 935 375 L 200 375 L 200 420" stroke="#9333EA" stroke-width="2.5" stroke-dasharray="5,5" fill="none" marker-end="url(#arrow-purple)"/>
+  <rect x="470" y="360" width="200" height="28" rx="6" fill="#F3E8FF" stroke="#C084FC" stroke-width="1"/>
+  <text x="570" y="378" text-anchor="middle" font-size="11" font-weight="700" fill="#7E22CE">🔄 캐시 없음! 원본 네임서버에 재질의</text>
+
+  <!-- ============================================================ -->
+  <!-- STEP 4: 재질의 응답 수신 및 신규 IP 캐시 갱신                -->
+  <!-- ============================================================ -->
+  <g transform="translate(100, 425)" filter="url(#shadow)">
+    <rect width="400" height="185" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+    <rect width="400" height="38" rx="12" fill="#DCFCE7"/>
+    <path d="M 0 26 L 0 38 L 400 38 L 400 26 Z" fill="#DCFCE7"/>
+    <text x="200" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#166534">STEP 4. 신규 IP 획득 및 리졸버 캐시 갱신</text>
+
+    <rect x="20" y="55" width="360" height="110" rx="8" fill="#FFFFFF" stroke="#BBF7D0" stroke-width="1"/>
+    <text x="35" y="80" font-size="12" font-weight="700" fill="#15803D">🏢 ISP / 공개 DNS 리졸버 캐시 테이블 갱신</text>
+    
+    <rect x="35" y="95" width="330" height="55" rx="6" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+    <text x="45" y="117" font-size="11" font-weight="700" fill="#166534">✨ 신규 매핑: example.com $\to$ 203.0.113.5</text>
+    <text x="45" y="137" font-size="10.5" fill="#15803D">🔄 새 TTL 타이머 시작 (초기 설정값으로 리셋, e.g. 300s)</text>
+  </g>
+
+  <!-- 화살표: Step 4 -> Step 5 -->
+  <path d="M 500 515 L 590 515" stroke="#16A34A" stroke-width="2.5" marker-end="url(#arrow-green)"/>
+  <text x="545" y="505" text-anchor="middle" font-size="11" font-weight="700" fill="#16A34A">새 IP 응답</text>
+
+  <!-- ============================================================ -->
+  <!-- STEP 5: 최종 사용자 브라우저가 신규 서버로 접속 완료         -->
+  <!-- ============================================================ -->
+  <g transform="translate(600, 425)" filter="url(#shadow)">
+    <rect width="450" height="185" rx="12" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="1.5"/>
+    <rect width="450" height="38" rx="12" fill="#EFF6FF"/>
+    <path d="M 0 26 L 0 38 L 450 38 L 450 26 Z" fill="#EFF6FF"/>
+    <text x="225" y="24" text-anchor="middle" font-size="14" font-weight="700" fill="#1E40AF">STEP 5. 최종 사용자 $\to$ 신규 서버 라우팅 완료</text>
+
+    <!-- 브라우저와 신규 서버 연결 -->
+    <rect x="20" y="55" width="180" height="110" rx="8" fill="#FFFFFF" stroke="#BFDBFE" stroke-width="1"/>
+    <text x="110" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#1D4ED8">💻 사용자 웹 브라우저</text>
+    <text x="110" y="105" text-anchor="middle" font-size="11" fill="#475569">DNS 룩업 완료</text>
+    <rect x="35" y="120" width="150" height="30" rx="4" fill="#DBEAFE"/>
+    <text x="110" y="139" text-anchor="middle" font-size="11" font-weight="700" fill="#1E40AF">IP: 203.0.113.5</text>
+
+    <!-- 연결선 -->
+    <path d="M 200 110 L 250 110" stroke="#16A34A" stroke-width="2" marker-end="url(#arrow-green)"/>
+
+    <!-- 신규 서버 -->
+    <rect x="250" y="55" width="180" height="110" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1"/>
+    <text x="340" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#166534">🖥️ 신규 웹/WAS 서버</text>
+    <text x="340" y="105" text-anchor="middle" font-size="11" fill="#15803D">(203.0.113.5)</text>
+    <text x="340" y="135" text-anchor="middle" font-size="11" font-weight="700" fill="#15803D">🎉 정상 서비스 개시</text>
+  </g>
+
+  <!-- ============================================================ -->
+  <!-- 하단: 실무 무중단 서버 이전 표준 전략 (TTL 단축 기법)        -->
+  <!-- ============================================================ -->
+  <g transform="translate(40, 635)">
+    <rect width="1020" height="150" rx="10" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1.5"/>
+    <text x="30" y="32" font-size="14" font-weight="800" fill="#92400E">⭐ 실무 백엔드/DevOps 면접 핵심: 무중단 서버 이전을 위한 'TTL 사전 단축 전략'</text>
+    
+    <!-- 3단계 프로세스 박스 -->
+    <!-- 1단계 -->
+    <rect x="30" y="50" width="300" height="80" rx="6" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="45" y="73" font-size="12" font-weight="700" fill="#B45309">① 작업 2~3일 전: TTL 대폭 축소</text>
+    <text x="45" y="93" font-size="11" fill="#475569">• 기존 TTL 86,400초(1일) $\to$ 300초(5분)</text>
+    <text x="45" y="112" font-size="11" fill="#64748B">• 전 세계 리졸버들의 긴 캐시를 미리 만료시킴</text>
+
+    <!-- 2단계 -->
+    <rect x="360" y="50" width="300" height="80" rx="6" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="375" y="73" font-size="12" font-weight="700" fill="#B45309">② 배포 당일: 신규 IP로 A 레코드 전환</text>
+    <text x="375" y="93" font-size="11" fill="#475569">• 새 서버 IP로 변경</text>
+    <text x="375" y="112" font-size="11" font-weight="700" fill="#16A34A">• TTL이 5분이므로 전 세계 5분 만에 전파 완료!</text>
+
+    <!-- 3단계 -->
+    <rect x="690" y="50" width="330" height="80" rx="6" fill="#FFFFFF" stroke="#FDE68A" stroke-width="1"/>
+    <text x="705" y="73" font-size="12" font-weight="700" fill="#B45309">③ 안정화 후: TTL 원복 (원상복구)</text>
+    <text x="705" y="93" font-size="11" fill="#475569">• 새 IP 정상 검증 후 TTL을 다시 86,400초로 복구</text>
+    <text x="705" y="112" font-size="11" fill="#64748B">• DNS 질의 트래픽 폭증 및 비용/부하 방지</text>
+  </g>
+</svg>
