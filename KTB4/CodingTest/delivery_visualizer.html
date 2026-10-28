@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>배달 문제 알고리즘 시각화</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .node-circle { transition: all 0.3s ease; }
+    .edge-line { transition: stroke 0.3s ease, stroke-width 0.3s ease; }
+    .pulse-node { animation: pulse 1.5s infinite; }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased p-4">
+  <div class="bg-slate-800 text-slate-100 border border-slate-700 rounded-2xl p-5 shadow-lg max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+      <div>
+        <h2 class="text-lg font-bold flex items-center gap-2">
+          <span>🚚</span> 프로그래머스 - 배달 (12978) 동작 원리 시각화
+        </h2>
+        <p class="text-xs text-slate-400 mt-0.5">
+          예제 1 ($N=5, K=3$): 거리 완화(Relaxation)와 우선순위 큐에 의한 최단 거리 갱신 과정
+        </p>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button id="btnPrev" class="px-3 py-1.5 text-xs rounded-lg border border-slate-600 hover:bg-slate-700 transition disabled:opacity-40">이전</button>
+        <button id="btnPlay" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition">자동 재생</button>
+        <button id="btnNext" class="px-3 py-1.5 text-xs rounded-lg border border-slate-600 hover:bg-slate-700 transition disabled:opacity-40">다음</button>
+        <button id="btnReset" class="px-3 py-1.5 text-xs rounded-lg border border-slate-600 hover:bg-slate-700 transition text-slate-400">처음으로</button>
+      </div>
+    </div>
+
+    <!-- Main Visual Stage: Graph & State Panel -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <!-- SVG Graph Canvas (3 cols) -->
+      <div class="md:col-span-3 bg-slate-900/60 border border-slate-700 rounded-xl p-3 relative flex flex-col items-center justify-center min-h-[280px]">
+        <svg id="graphSvg" viewBox="0 0 340 240" class="w-full h-auto overflow-visible select-none">
+          <!-- Edges will be rendered here -->
+          <g id="edgesGroup"></g>
+          <!-- Nodes will be rendered here -->
+          <g id="nodesGroup"></g>
+        </svg>
+        <div class="w-full flex items-center justify-between px-2 pt-2 text-[11px] text-slate-400 border-t border-slate-700/60 mt-2">
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> 배달 가능 (&le; K=3)</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span> 배달 불가 (&gt; K=3)</span>
+          <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span> 현재 방문 중 (now)</span>
+        </div>
+      </div>
+
+      <!-- State & Tables Panel (2 cols) -->
+      <div class="md:col-span-2 flex flex-col justify-between gap-3">
+        <!-- Queue State -->
+        <div class="bg-slate-900/40 border border-slate-700 rounded-xl p-3">
+          <div class="text-xs font-semibold text-slate-400 mb-1.5 flex items-center justify-between">
+            <span>대기 큐 (Heap Queue)</span>
+            <span id="stepCounter" class="text-xs font-mono text-indigo-400 font-bold">Step 0 / 6</span>
+          </div>
+          <div id="queueBox" class="flex flex-wrap gap-1.5 min-h-[30px] items-center">
+            <!-- Queue items -->
+          </div>
+        </div>
+
+        <!-- times Array Table -->
+        <div class="bg-slate-900/40 border border-slate-700 rounded-xl p-3">
+          <div class="text-xs font-semibold text-slate-400 mb-2 flex items-center justify-between">
+            <span>마을별 최단 시간 (<code class="text-xs text-indigo-300">times</code>)</span>
+            <span class="text-[11px] text-slate-400">기준: K = 3</span>
+          </div>
+          <div class="grid grid-cols-5 gap-1.5 text-center font-mono text-xs">
+            <div class="border border-slate-700 rounded p-1.5 bg-slate-800" id="cardNode1">
+              <div class="text-[10px] text-slate-400 font-sans">1번(시작)</div>
+              <div class="font-bold text-sm" id="time1">0</div>
+            </div>
+            <div class="border border-slate-700 rounded p-1.5 bg-slate-800" id="cardNode2">
+              <div class="text-[10px] text-slate-400 font-sans">2번</div>
+              <div class="font-bold text-sm" id="time2">&infin;</div>
+            </div>
+            <div class="border border-slate-700 rounded p-1.5 bg-slate-800" id="cardNode3">
+              <div class="text-[10px] text-slate-400 font-sans">3번</div>
+              <div class="font-bold text-sm" id="time3">&infin;</div>
+            </div>
+            <div class="border border-slate-700 rounded p-1.5 bg-slate-800" id="cardNode4">
+              <div class="text-[10px] text-slate-400 font-sans">4번</div>
+              <div class="font-bold text-sm" id="time4">&infin;</div>
+            </div>
+            <div class="border border-slate-700 rounded p-1.5 bg-slate-800" id="cardNode5">
+              <div class="text-[10px] text-slate-400 font-sans">5번</div>
+              <div class="font-bold text-sm" id="time5">&infin;</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Explanation Log Box -->
+        <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-3 flex-1 flex flex-col justify-center">
+          <div class="text-xs font-bold text-slate-200 mb-1 flex items-center gap-1.5" id="stepActionTitle">
+            🏁 초기 상태 세팅
+          </div>
+          <p class="text-xs text-slate-400 leading-relaxed" id="stepActionDesc">
+            1번 마을(출발지)의 시간은 0으로 설정되고, <code class="bg-slate-800 text-indigo-300 px-1 rounded">queue = [1]</code>로 탐색이 시작됩니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const nodes = {
+      1: { x: 50,  y: 120, label: "1번" },
+      2: { x: 140, y: 50,  label: "2번" },
+      3: { x: 280, y: 60,  label: "3번" },
+      4: { x: 130, y: 190, label: "4번" },
+      5: { x: 260, y: 180, label: "5번" }
+    };
+
+    const edges = [
+      { u: 1, v: 2, cost: 1 },
+      { u: 1, v: 4, cost: 2 },
+      { u: 2, v: 3, cost: 3 },
+      { u: 2, v: 5, cost: 2 },
+      { u: 4, v: 5, cost: 2 },
+      { u: 5, v: 3, cost: 1 }
+    ];
+
+    const steps = [
+      {
+        step: 0,
+        now: null,
+        activeEdges: [],
+        times: [null, 0, Infinity, Infinity, Infinity, Infinity],
+        queue: [1],
+        title: "🏁 시작점 초기화",
+        desc: "시작 마을 1번의 최단 시간을 0으로 설정하고, 탐색 큐에 [1]을 넣습니다."
+      },
+      {
+        step: 1,
+        now: 1,
+        activeEdges: [{ u: 1, v: 2 }, { u: 1, v: 4 }],
+        times: [null, 0, 1, Infinity, 2, Infinity],
+        queue: [2, 4],
+        title: "⚡ 1번 마을 탐색 (now = 1)",
+        desc: "1번에서 연결된 2번(비용 1), 4번(비용 2)으로 가는 시간이 기존 &infin;보다 짧으므로 times[2]=1, times[4]=2로 갱신되고 큐에 2, 4가 들어갑니다."
+      },
+      {
+        step: 2,
+        now: 2,
+        activeEdges: [{ u: 2, v: 3 }, { u: 2, v: 5 }],
+        times: [null, 0, 1, 4, 2, 3],
+        queue: [3, 4, 5],
+        title: "⚡ 2번 마을 탐색 (now = 2)",
+        desc: "현재 times[2] = 1입니다. 3번 마을로 1+3=4 &lt; &infin; 갱신, 5번 마을로 1+2=3 &lt; &infin; 갱신되며 큐에 3, 5가 추가됩니다."
+      },
+      {
+        step: 3,
+        now: 3,
+        activeEdges: [{ u: 3, v: 5 }],
+        times: [null, 0, 1, 4, 2, 3],
+        queue: [4, 5],
+        title: "🛡️ 3번 마을 탐색 (now = 3)",
+        desc: "3번에서 5번으로 가는 비용은 4 + 1 = 5입니다. 하지만 이미 times[5] = 3이므로 갱신 조건(5 &lt; 3) 불만족! 큐에 넣지 않고 무시합니다 (사이클 방어)."
+      },
+      {
+        step: 4,
+        now: 4,
+        activeEdges: [{ u: 4, v: 5 }],
+        times: [null, 0, 1, 4, 2, 3],
+        queue: [5],
+        title: "🛡️ 4번 마을 탐색 (now = 4)",
+        desc: "4번에서 5번으로 가는 비용은 2 + 2 = 4입니다. 이미 5번의 최단 시간(3)이 더 빠르므로 갱신되지 않고 통과합니다."
+      },
+      {
+        step: 5,
+        now: 5,
+        activeEdges: [{ u: 5, v: 3 }],
+        times: [null, 0, 1, 4, 2, 3],
+        queue: [],
+        title: "⚡ 5번 마을 탐색 (now = 5)",
+        desc: "5번에서 3번으로 가면 3 + 1 = 4입니다. 기존 times[3](4)와 같으므로 더 줄어들지 않아 큐에 추가되지 않고 루프가 종료됩니다."
+      },
+      {
+        step: 6,
+        now: null,
+        activeEdges: [],
+        times: [null, 0, 1, 4, 2, 3],
+        queue: [],
+        title: "🎉 탐색 완료 및 배달 가능 마을 판별 (K = 3)",
+        desc: "최종 시간: 1번(0), 2번(1), 4번(2), 5번(3)은 K=3 이하이므로 배달 가능(총 4곳)! 3번(4)은 초과하여 배달 불가입니다."
+      }
+    ];
+
+    let currentStep = 0;
+    let timer = null;
+
+    function renderBaseGraph() {
+      const edgesGroup = document.getElementById("edgesGroup");
+      const nodesGroup = document.getElementById("nodesGroup");
+      edgesGroup.innerHTML = "";
+      nodesGroup.innerHTML = "";
+
+      // Draw edges
+      edges.forEach((e, idx) => {
+        const u = nodes[e.u];
+        const v = nodes[e.v];
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", u.x);
+        line.setAttribute("y1", u.y);
+        line.setAttribute("x2", v.x);
+        line.setAttribute("y2", v.y);
+        line.setAttribute("stroke", "#94a3b8");
+        line.setAttribute("stroke-opacity", "0.35");
+        line.setAttribute("stroke-width", "2");
+        line.setAttribute("id", `edge-${e.u}-${e.v}`);
+        line.setAttribute("class", "edge-line");
+        edgesGroup.appendChild(line);
+
+        // Edge Cost Label
+        const mx = (u.x + v.x) / 2;
+        const my = (u.y + v.y) / 2 - 4;
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", mx);
+        text.setAttribute("y", my);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("font-size", "11px");
+        text.setAttribute("font-weight", "bold");
+        text.setAttribute("fill", "#cbd5e1");
+        text.setAttribute("opacity", "0.8");
+        text.textContent = e.cost;
+        edgesGroup.appendChild(text);
+      });
+
+      // Draw nodes
+      for (const [id, n] of Object.entries(nodes)) {
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        g.setAttribute("id", `node-group-${id}`);
+
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", n.x);
+        circle.setAttribute("cy", n.y);
+        circle.setAttribute("r", "16");
+        circle.setAttribute("fill", "#1e293b");
+        circle.setAttribute("stroke", "#64748b");
+        circle.setAttribute("stroke-width", "2.5");
+        circle.setAttribute("class", "node-circle");
+        circle.setAttribute("id", `node-circle-${id}`);
+        g.appendChild(circle);
+
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("x", n.x);
+        text.setAttribute("y", n.y + 4);
+        text.setAttribute("text-anchor", "middle");
+        text.setAttribute("font-size", "11px");
+        text.setAttribute("font-weight", "bold");
+        text.setAttribute("fill", "#f8fafc");
+        text.textContent = id;
+        g.appendChild(text);
+
+        nodesGroup.appendChild(g);
+      }
+    }
+
+    function updateView() {
+      const state = steps[currentStep];
+
+      // Update counters & text
+      document.getElementById("stepCounter").textContent = `Step ${state.step} / ${steps.length - 1}`;
+      document.getElementById("stepActionTitle").textContent = state.title;
+      document.getElementById("stepActionDesc").innerHTML = state.desc;
+
+      // Update Buttons
+      document.getElementById("btnPrev").disabled = currentStep === 0;
+      document.getElementById("btnNext").disabled = currentStep === steps.length - 1;
+
+      // Update Queue UI
+      const qBox = document.getElementById("queueBox");
+      qBox.innerHTML = "";
+      if (state.queue.length === 0) {
+        qBox.innerHTML = `<span class="text-xs text-slate-500 italic">비어 있음 (탐색 종료)</span>`;
+      } else {
+        state.queue.forEach(item => {
+          const badge = document.createElement("span");
+          badge.className = "px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-indigo-600 text-white shadow";
+          badge.textContent = `${item}번`;
+          qBox.appendChild(badge);
+        });
+      }
+
+      // Update times Table & Node colors
+      for (let i = 1; i <= 5; i++) {
+        const val = state.times[i];
+        const timeEl = document.getElementById(`time${i}`);
+        const cardEl = document.getElementById(`cardNode${i}`);
+        const circle = document.getElementById(`node-circle-${i}`);
+
+        timeEl.textContent = val === Infinity ? "∞" : val;
+
+        // Reset classes
+        cardEl.className = "border rounded p-1.5 transition-all bg-slate-800 ";
+        circle.setAttribute("stroke", "#64748b");
+        circle.setAttribute("stroke-width", "2.5");
+        circle.setAttribute("fill", "#1e293b");
+        circle.classList.remove("pulse-node");
+
+        if (state.now === i) {
+          // Current visiting node
+          cardEl.className += "border-blue-500 bg-blue-950/60 text-blue-400 font-bold scale-105 shadow-md";
+          circle.setAttribute("stroke", "#3b82f6");
+          circle.setAttribute("stroke-width", "4");
+          circle.setAttribute("fill", "#1e3a8a");
+          circle.classList.add("pulse-node");
+        } else if (val <= 3) {
+          // Deliverable
+          cardEl.className += "border-emerald-500/80 bg-emerald-950/40 text-emerald-400";
+          circle.setAttribute("stroke", "#10b981");
+          circle.setAttribute("stroke-width", "3");
+          circle.setAttribute("fill", "#064e3b");
+        } else if (val > 3 && val !== Infinity) {
+          // Undeliverable
+          cardEl.className += "border-amber-500/80 bg-amber-950/40 text-amber-400";
+          circle.setAttribute("stroke", "#f59e0b");
+          circle.setAttribute("stroke-width", "3");
+          circle.setAttribute("fill", "#78350f");
+        } else {
+          cardEl.className += "border-slate-700 text-slate-300";
+        }
+      }
+
+      // Update Edge highlights
+      edges.forEach(e => {
+        const line = document.getElementById(`edge-${e.u}-${e.v}`);
+        if (!line) return;
+        const isActive = state.activeEdges.some(
+          ae => (ae.u === e.u && ae.v === e.v) || (ae.u === e.v && ae.v === e.u)
+        );
+
+        if (isActive) {
+          line.setAttribute("stroke", "#60a5fa");
+          line.setAttribute("stroke-width", "4");
+          line.setAttribute("stroke-opacity", "1");
+        } else {
+          line.setAttribute("stroke", "#94a3b8");
+          line.setAttribute("stroke-width", "2");
+          line.setAttribute("stroke-opacity", "0.35");
+        }
+      });
+    }
+
+    // Button event listeners
+    document.getElementById("btnNext").addEventListener("click", () => {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        updateView();
+      }
+    });
+
+    document.getElementById("btnPrev").addEventListener("click", () => {
+      if (currentStep > 0) {
+        currentStep--;
+        updateView();
+      }
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      stopAutoPlay();
+      currentStep = 0;
+      updateView();
+    });
+
+    const btnPlay = document.getElementById("btnPlay");
+    function stopAutoPlay() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+        btnPlay.textContent = "자동 재생";
+      }
+    }
+
+    btnPlay.addEventListener("click", () => {
+      if (timer) {
+        stopAutoPlay();
+      } else {
+        if (currentStep === steps.length - 1) currentStep = 0;
+        btnPlay.textContent = "일시 정지";
+        updateView();
+        timer = setInterval(() => {
+          if (currentStep < steps.length - 1) {
+            currentStep++;
+            updateView();
+          } else {
+            stopAutoPlay();
+          }
+        }, 1600);
+      }
+    });
+
+    // Init
+    renderBaseGraph();
+    updateView();
+  </script>
+</body>
+</html>
