@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>사칙연산 구간 DP 시각화</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .cell-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .pulse-cell { animation: cellPulse 1.4s infinite; }
+    @keyframes cellPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 antialiased p-4">
+  <div class="bg-slate-800 text-slate-100 border border-slate-700 rounded-2xl p-5 shadow-lg max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+      <div>
+        <h2 class="text-base font-bold flex items-center gap-2">
+          <span>🧮</span> 프로그래머스 - 사칙연산 (1843) 구간 DP 동작 원리
+        </h2>
+        <p class="text-xs text-slate-400 mt-0.5">
+          수식: <code class="font-mono text-indigo-400 font-bold">1 - 3 + 5 - 8</code> | 구간 길이(step)를 늘려가며 괄호 분할점 탐색
+        </p>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button id="btnPrev" class="px-3 py-1.5 text-xs rounded-lg border border-slate-600 hover:bg-slate-700 transition disabled:opacity-40">이전</button>
+        <button id="btnPlay" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition">자동 재생</button>
+        <button id="btnNext" class="px-3 py-1.5 text-xs rounded-lg border border-slate-600 hover:bg-slate-700 transition disabled:opacity-40">다음</button>
+        <button id="btnReset" class="px-3 py-1.5 text-xs rounded-lg border border-slate-600 hover:bg-slate-700 transition text-slate-400">처음으로</button>
+      </div>
+    </div>
+
+    <!-- Active Expression & Bracket Visualizer -->
+    <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-3.5 mb-4">
+      <div class="text-xs font-semibold text-slate-400 mb-2 flex items-center justify-between">
+        <span>현재 수식 괄호 분할 상태</span>
+        <span id="stepBadge" class="text-xs font-mono font-bold text-indigo-400">Step 0 / 7</span>
+      </div>
+
+      <!-- Formula Blocks -->
+      <div id="formulaContainer" class="flex items-center justify-center gap-2 py-2 text-sm font-mono font-bold flex-wrap">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Live Calculation Breakdown Card -->
+      <div id="calcBox" class="mt-2.5 p-3 rounded-lg border border-slate-700 bg-slate-800 text-xs font-mono leading-relaxed">
+        <!-- Calculation text -->
+      </div>
+    </div>
+
+    <!-- Main DP Grid Layout: max_dp & min_dp Tables -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <!-- max_dp Table -->
+      <div class="bg-slate-900/40 border border-slate-700 rounded-xl p-3.5">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+            최댓값 테이블 (max_dp)
+          </span>
+          <span class="text-[11px] text-slate-400">[i][j] 구간의 최댓값</span>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 text-center font-mono text-xs" id="maxGrid">
+          <!-- Max Grid -->
+        </div>
+      </div>
+
+      <!-- min_dp Table -->
+      <div class="bg-slate-900/40 border border-slate-700 rounded-xl p-3.5">
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+            최솟값 테이블 (min_dp)
+          </span>
+          <span class="text-[11px] text-slate-400">[i][j] 구간의 최솟값</span>
+        </div>
+        <div class="grid grid-cols-5 gap-1.5 text-center font-mono text-xs" id="minGrid">
+          <!-- Min Grid -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation Log Box -->
+    <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-3.5">
+      <div class="text-xs font-bold text-slate-200 mb-1 flex items-center gap-2" id="stepTitle">
+        🏁 초기화 단계
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed" id="stepDesc">
+        숫자 자기 자신(길이 1)은 괄호를 칠 수 없으므로, max_dp[i][i]와 min_dp[i][i]를 해당 숫자로 초기화합니다.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    const nums = [1, 3, 5, 8];
+    const ops = ['-', '+', '-'];
+    const n = 4;
+
+    const steps = [
+      {
+        step: 0,
+        title: "🏁 Step 0: 자기 자신 구간 초기화 (길이 1)",
+        desc: "각 숫자 단독 구간(i=j)은 연산자가 없으므로 [0..0]=1, [1..1]=3, [2..2]=5, [3..3]=8로 최댓값과 최솟값이 자기 자신과 같습니다.",
+        activeRange: null,
+        split: null,
+        calcHtml: `<span class="text-slate-400">초기화 완료: 대각선 셀들에 각 숫자가 채워졌습니다.</span>`,
+        maxTable: [
+          [1, null, null, null],
+          [null, 3, null, null],
+          [null, null, 5, null],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, null, null, null],
+          [null, 3, null, null],
+          [null, null, 5, null],
+          [null, null, null, 8]
+        ]
+      },
+      {
+        step: 1,
+        title: "⚡ Step 1: 구간 길이 1 계산 (2개 숫자 결합)",
+        desc: "인접한 2개의 숫자는 분할점이 1개뿐입니다. [0..1]: 1 - 3 = -2, [1..2]: 3 + 5 = 8, [2..3]: 5 - 8 = -3으로 채워집니다.",
+        activeRange: [0, 1],
+        split: 0,
+        calcHtml: `
+          <div>• [0..1] (1 - 3): 1 - 3 = <b class="text-emerald-400">-2</b></div>
+          <div>• [1..2] (3 + 5): 3 + 5 = <b class="text-emerald-400">8</b></div>
+          <div>• [2..3] (5 - 8): 5 - 8 = <b class="text-emerald-400">-3</b></div>
+        `,
+        maxTable: [
+          [1, -2, null, null],
+          [null, 3, 8, null],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, -2, null, null],
+          [null, 3, 8, null],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ]
+      },
+      {
+        step: 2,
+        title: "🔍 Step 2: 구간 길이 2 계산 - [0..2] 구간 분할",
+        desc: "수식 '1 - 3 + 5' (0번~2번 숫자)를 두 가지 방식으로 쪼개어 최댓값을 찾습니다.",
+        activeRange: [0, 2],
+        split: 1,
+        calcHtml: `
+          <div class="text-slate-400 mb-1">구간 [0..2]: "1 - 3 + 5"의 가능한 괄호 묶음 2가지:</div>
+          <div>1) k=0 기준 분할: (1) - (3 + 5) ➡️ 1 - 8 = <span class="text-amber-400 font-bold">-7</span></div>
+          <div>2) k=1 기준 분할: (1 - 3) + (5) ➡️ -2 + 5 = <span class="text-emerald-400 font-bold">3</span></div>
+          <div class="mt-1 font-bold text-emerald-400">👉 max_dp[0][2] = max(-7, 3) = 3 / min_dp[0][2] = -7</div>
+        `,
+        maxTable: [
+          [1, -2, 3, null],
+          [null, 3, 8, null],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, -2, -7, null],
+          [null, 3, 8, null],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ]
+      },
+      {
+        step: 3,
+        title: "🔍 Step 3: 구간 길이 2 계산 - [1..3] 구간 분할",
+        desc: "수식 '3 + 5 - 8' (1번~3번 숫자)를 두 가지 방식으로 쪼개어 최댓값을 찾습니다.",
+        activeRange: [1, 3],
+        split: 2,
+        calcHtml: `
+          <div class="text-slate-400 mb-1">구간 [1..3]: "3 + 5 - 8"의 가능한 괄호 묶음 2가지:</div>
+          <div>1) k=1 기준 분할: (3) + (5 - 8) ➡️ 3 + (-3) = <span class="text-emerald-400 font-bold">0</span></div>
+          <div>2) k=2 기준 분할: (3 + 5) - (8) ➡️ 8 - 8 = <span class="text-emerald-400 font-bold">0</span></div>
+          <div class="mt-1 font-bold text-emerald-400">👉 max_dp[1][3] = 0 / min_dp[1][3] = 0</div>
+        `,
+        maxTable: [
+          [1, -2, 3, null],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, -2, -7, null],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ]
+      },
+      {
+        step: 4,
+        title: "🔥 Step 4: [전체 수식] k=0 분할 (마이너스 부호 반전의 마법!)",
+        desc: "전체 수식 1 - (3 + 5 - 8)로 쪼갰을 때: 빼기의 최댓값은 '(앞의 최대) - (뒤의 최소)' 공식이 적용됩니다!",
+        activeRange: [0, 3],
+        split: 0,
+        calcHtml: `
+          <div class="text-indigo-400 font-bold mb-1">★ 괄호 형태: ( 1 ) - ( 3 + 5 - 8 )</div>
+          <div>• 앞부분 max_dp[0][0] = <b class="text-emerald-400">1</b></div>
+          <div>• 뒷부분 min_dp[1][3] = <b class="text-amber-400">0</b></div>
+          <div class="mt-1 text-sm text-emerald-300 font-bold bg-emerald-950/40 border border-emerald-500/30 p-2 rounded">
+            계산 결과: 1 - 0 = 1 (현재까지의 최댓값 후보!)
+          </div>
+        `,
+        maxTable: [
+          [1, -2, 3, 1],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, -2, -7, null],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ]
+      },
+      {
+        step: 5,
+        title: "🔍 Step 5: [전체 수식] k=1 분할",
+        desc: "수식을 (1 - 3) + (5 - 8)로 쪼개어 계산합니다.",
+        activeRange: [0, 3],
+        split: 1,
+        calcHtml: `
+          <div class="text-slate-400 mb-1">★ 괄호 형태: ( 1 - 3 ) + ( 5 - 8 )</div>
+          <div>• 앞부분 max_dp[0][1] = -2</div>
+          <div>• 뒷부분 max_dp[2][3] = -3</div>
+          <div class="mt-1">계산 결과: -2 + (-3) = <b class="text-amber-400">-5</b> (최댓값 1보다 작으므로 탈락)</div>
+        `,
+        maxTable: [
+          [1, -2, 3, 1],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, -2, -7, null],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ]
+      },
+      {
+        step: 6,
+        title: "🔍 Step 6: [전체 수식] k=2 분할",
+        desc: "수식을 (1 - 3 + 5) - (8)로 쪼개어 계산합니다.",
+        activeRange: [0, 3],
+        split: 2,
+        calcHtml: `
+          <div class="text-slate-400 mb-1">★ 괄호 형태: ( 1 - 3 + 5 ) - ( 8 )</div>
+          <div>• 앞부분 max_dp[0][2] = 3</div>
+          <div>• 뒷부분 min_dp[3][3] = 8</div>
+          <div class="mt-1">계산 결과: 3 - 8 = <b class="text-amber-400">-5</b> (최댓값 1보다 작으므로 탈락)</div>
+        `,
+        maxTable: [
+          [1, -2, 3, 1],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, -2, -7, -15],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ]
+      },
+      {
+        step: 7,
+        title: "🎉 Step 7: 최종 정답 도출: 1",
+        desc: "전체 수식(0번부터 3번 숫자까지)의 최댓값인 max_dp[0][3]에 저장된 최종 답은 '1'입니다! 1 - (3 + 5 - 8) = 1 - 0 = 1",
+        activeRange: [0, 3],
+        split: 0,
+        calcHtml: `
+          <div class="text-emerald-400 font-bold text-sm">
+            🏆 최종 최댓값: max_dp[0][3] = 1
+          </div>
+          <div class="text-xs text-slate-400 mt-1">
+            마이너스 연산자 뒤를 괄호로 묶어 '최솟값(0)'으로 만든 뒤 빼줌으로써, 최댓값 1을 만들어내는 것이 핵심 원리입니다!
+          </div>
+        `,
+        maxTable: [
+          [1, -2, 3, 1],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ],
+        minTable: [
+          [1, -2, -7, -15],
+          [null, 3, 8, 0],
+          [null, null, 5, -3],
+          [null, null, null, 8]
+        ]
+      }
+    ];
+
+    let currentStep = 0;
+    let timer = null;
+
+    function renderFormula() {
+      const container = document.getElementById("formulaContainer");
+      container.innerHTML = "";
+      const state = steps[currentStep];
+
+      for (let i = 0; i < n; i++) {
+        // Number badge
+        const numBadge = document.createElement("span");
+        numBadge.className = "px-2.5 py-1 rounded-lg border text-xs font-bold transition-all ";
+        numBadge.textContent = nums[i];
+
+        if (state.activeRange && i >= state.activeRange[0] && i <= state.activeRange[1]) {
+          numBadge.className += "border-blue-500 bg-blue-950/60 text-blue-400 scale-105 shadow";
+        } else {
+          numBadge.className += "border-slate-700 bg-slate-800 text-slate-300 opacity-70";
+        }
+        container.appendChild(numBadge);
+
+        // Operator
+        if (i < n - 1) {
+          const opBadge = document.createElement("span");
+          opBadge.className = "px-2 py-0.5 rounded text-xs font-bold transition-all ";
+          if (state.split === i) {
+            opBadge.className += "bg-indigo-600 text-white shadow-md scale-110";
+            opBadge.textContent = `[ ${ops[i]} ] (분할점)`;
+          } else {
+            opBadge.className += "text-slate-400";
+            opBadge.textContent = ops[i];
+          }
+          container.appendChild(opBadge);
+        }
+      }
+    }
+
+    function renderGrid(containerId, data, isMax) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      const state = steps[currentStep];
+
+      // Header row
+      const corner = document.createElement("div");
+      corner.className = "text-[10px] text-slate-500 p-1";
+      corner.textContent = "i \\ j";
+      container.appendChild(corner);
+
+      for (let j = 0; j < n; j++) {
+        const h = document.createElement("div");
+        h.className = "text-[11px] font-bold text-slate-400 p-1";
+        h.textContent = `${j}`;
+        container.appendChild(h);
+      }
+
+      // Rows
+      for (let i = 0; i < n; i++) {
+        const rowHeader = document.createElement("div");
+        rowHeader.className = "text-[11px] font-bold text-slate-400 p-1 flex items-center justify-center";
+        rowHeader.textContent = `${i}`;
+        container.appendChild(rowHeader);
+
+        for (let j = 0; j < n; j++) {
+          const cell = document.createElement("div");
+          cell.className = "border rounded p-1 text-center font-mono text-xs flex items-center justify-center min-h-[28px] cell-transition ";
+
+          const val = data[i][j];
+          if (i > j) {
+            cell.className += "border-transparent bg-transparent opacity-20 text-slate-600";
+            cell.textContent = "-";
+          } else if (val === null) {
+            cell.className += "border-slate-800 bg-slate-900/40 text-slate-600";
+            cell.textContent = "";
+          } else {
+            if (state.activeRange && state.activeRange[0] === i && state.activeRange[1] === j) {
+              cell.className += isMax 
+                ? "border-emerald-500 bg-emerald-950/60 text-emerald-300 font-bold scale-105 pulse-cell shadow"
+                : "border-amber-500 bg-amber-950/60 text-amber-300 font-bold scale-105 pulse-cell shadow";
+            } else {
+              cell.className += isMax
+                ? "border-emerald-500/40 bg-emerald-950/20 text-emerald-400 font-semibold"
+                : "border-amber-500/40 bg-amber-950/20 text-amber-400 font-semibold";
+            }
+            cell.textContent = val;
+          }
+          container.appendChild(cell);
+        }
+      }
+    }
+
+    function updateView() {
+      const state = steps[currentStep];
+
+      document.getElementById("stepBadge").textContent = `Step ${state.step} / ${steps.length - 1}`;
+      document.getElementById("stepTitle").textContent = state.title;
+      document.getElementById("stepDesc").textContent = state.desc;
+      document.getElementById("calcBox").innerHTML = state.calcHtml;
+
+      document.getElementById("btnPrev").disabled = currentStep === 0;
+      document.getElementById("btnNext").disabled = currentStep === steps.length - 1;
+
+      renderFormula();
+      renderGrid("maxGrid", state.maxTable, true);
+      renderGrid("minGrid", state.minTable, false);
+    }
+
+    document.getElementById("btnNext").addEventListener("click", () => {
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        updateView();
+      }
+    });
+
+    document.getElementById("btnPrev").addEventListener("click", () => {
+      if (currentStep > 0) {
+        currentStep--;
+        updateView();
+      }
+    });
+
+    document.getElementById("btnReset").addEventListener("click", () => {
+      stopAutoPlay();
+      currentStep = 0;
+      updateView();
+    });
+
+    const btnPlay = document.getElementById("btnPlay");
+    function stopAutoPlay() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+        btnPlay.textContent = "자동 재생";
+      }
+    }
+
+    btnPlay.addEventListener("click", () => {
+      if (timer) {
+        stopAutoPlay();
+      } else {
+        if (currentStep === steps.length - 1) currentStep = 0;
+        btnPlay.textContent = "일시 정지";
+        updateView();
+        timer = setInterval(() => {
+          if (currentStep < steps.length - 1) {
+            currentStep++;
+            updateView();
+          } else {
+            stopAutoPlay();
+          }
+        }, 1800);
+      }
+    });
+
+    updateView();
+  </script>
+</body>
+</html>
