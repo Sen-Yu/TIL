@@ -121,7 +121,10 @@ description: >-
   Co-Authored-By: Claude <noreply@anthropic.com>
   ```
 - **푸시는 사용자가 요청할 때만** 한다. 커밋 후 "푸시할까요?"로 묻는다.
-- 푸시 후 커밋 링크를 준다: `https://github.com/Sen-Yu/TIL/commit/<짧은 해시>`
+- 푸시가 성공하면 **커밋 링크와 폴더 링크를 함께** 준다.
+  - 커밋: `https://github.com/Sen-Yu/TIL/commit/<짧은 해시>`
+  - 폴더: `https://github.com/Sen-Yu/TIL/tree/main/<폴더 경로>` (한글·공백은 URL 인코딩, 예: `urllib.parse.quote`)
+  - 커밋이 여러 폴더에 걸치면 폴더마다 링크를 하나씩 준다.
 
 ## 7. 백준 (Python)
 
